@@ -14,7 +14,7 @@ use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\FOSRestController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Employee;
 use App\Model\EmployeeResponse;
 use App\Model\EmployeeRequest;
@@ -25,7 +25,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 /**
  * @Route("/employees")
  */
-class DefaultController extends FOSRestController
+class DefaultController extends AbstractController
 {
 
     // TODO: Post file
@@ -102,6 +102,15 @@ class DefaultController extends FOSRestController
     /**
      * @Post("")
      *
+     *
+     * @SWG\Post(
+     *    @SWG\Response(
+     *      response=201,
+     *        description="Create a new employee record", 
+     *     ),
+     *     @SWG\Parameter(name="body", in="body", @Model(type=EmployeeRequest::class))
+     * )
+     *
      * @ParamConverter(
      *     "employeeRequest",
      *     converter="fos_rest.request_body"
@@ -109,8 +118,6 @@ class DefaultController extends FOSRestController
      */
     public function createAction(EmployeeRequest $employeeRequest)
     {
-        // TODO: Handle errors (ConstraintViolationListInterface $validationErrors)
-
         $message = [];
         $message['message'] = 'Created';
         $response = new Response(json_encode($message));
@@ -136,6 +143,14 @@ class DefaultController extends FOSRestController
 
     /**
      * @Put("/{uuid}")
+     *
+     * @SWG\Put(
+     *    @SWG\Response(
+     *      response=200,
+     *        description="Update an employee record", 
+     *     ),
+     *     @SWG\Parameter(name="body", in="body", @Model(type=EmployeeRequest::class))
+     * )
      *
      * @ParamConverter(
      *     "employeeRequest",
