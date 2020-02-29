@@ -15,33 +15,85 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\FOSRestController;
+use App\Entity\Employee;
+use App\Model\EmployeeResponse;
+use App\Model\EmployeeRequest;
+use Doctrine\ORM\EntityNotFoundException;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 /**
  * @Route("/employees")
  */
 class DefaultController extends FOSRestController
 {
-    public function index()
-    {
-        $number = random_int(0, 100);
 
-        return new Response(
-            '<html><body>Lucky number: '.$number.'</body></html>'
-        );
-    }
+    // TODO: Post file
+    // TODO: Get file
+    // TODO: Basic auth
+    // TODO: Token
 
    /**
      * @Get("")
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns a list of employee responses",
+     *     @Model(type=EmployeeResponse::class)
+     * )
      * 
    	 * @param ParamFetcherInterface $paramFetcher
      */
     public function listAction(ParamFetcherInterface $paramFetcher)
     {
-    	$data = [];
+        $employees = $this->getDoctrine()
+            ->getRepository(Employee::class)
+            ->findAll();
 
-    	$data['message'] = "Hello world";
+        $records = [];
 
-    	$response = new Response(json_encode($data));
+        foreach ($employees as $employee) {
+            $employeeResponse = new EmployeeResponse();
+            $employeeResponse->name =$employee->getName();
+            $employeeResponse->age = $employee->getAge();
+            $employeeResponse->salary = $employee->getSalary();
+            $employeeResponse->uuid = $employee->getUuid();
+
+            $records[] = $employeeResponse;
+        }
+
+    	$response = new Response(json_encode($records));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    /**
+     * @Get("/{uuid}")
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns a specific employee record",
+     *     @Model(type=EmployeeResponse::class)
+     * )
+     */
+    public function detailAction(string $uuid)
+    {
+        $employee = $this->getDoctrine()
+            ->getRepository(Employee::class)
+            ->findOneByUuid($uuid);
+
+        if ($employee === null) {
+            throw new EntityNotFoundException(sprintf("No employee found with uuid %s", $uuid));
+        }
+        
+        $employeeResponse = new EmployeeResponse();
+        $employeeResponse->name =$employee->getName();
+        $employeeResponse->age = $employee->getAge();
+        $employeeResponse->salary = $employee->getSalary();
+        $employeeResponse->uuid = $employee->getUuid();
+
+        $response = new Response(json_encode($employeeResponse));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
@@ -49,15 +101,33 @@ class DefaultController extends FOSRestController
 
     /**
      * @Post("")
+     *
+     * @ParamConverter(
+     *     "employeeRequest",
+     *     converter="fos_rest.request_body"
+     * )
      */
-    public function createAction()
+    public function createAction(EmployeeRequest $employeeRequest)
     {
-    	$data = [];
+        // TODO: Handle errors (ConstraintViolationListInterface $validationErrors)
 
-    	$data['message'] = "Hello world " . $uuid;
+        $response = new Response();
 
-    	$response = new Response(json_encode($data));
-        $response->headers->set('Content-Type', 'application/json');
+        try {
+            $employeeEntity = new Employee();
+            $employeeEntity->setName($employeeRequest->name);
+            $employeeEntity->setAge($employeeRequest->age);
+            $employeeEntity->setSalary($employeeRequest->salary);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($employeeEntity);
+            $entityManager->flush();
+            
+            $response->setStatusCode(201);
+            $response->headers->set('location', sprintf('employees/%s', $employeeEntity->getUuid()));
+        } catch (\Exception $e) {
+            die('ERROR'); // TODO: Fix
+        }
 
         return $response;
     }
