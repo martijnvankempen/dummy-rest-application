@@ -102,7 +102,6 @@ class DefaultController extends AbstractController
     /**
      * @Post("")
      *
-     *
      * @SWG\Post(
      *    @SWG\Response(
      *      response=201,
@@ -116,8 +115,24 @@ class DefaultController extends AbstractController
      *     converter="fos_rest.request_body"
      * )
      */
-    public function createAction(EmployeeRequest $employeeRequest)
+    public function createAction(EmployeeRequest $employeeRequest, ConstraintViolationListInterface $validationErrors)
     {
+        if (\count($validationErrors) > 0) {
+             $errorMessages = [];
+
+            /** @var ConstraintViolation $validationError */
+            foreach ($validationErrors as $validationError) {
+                $errorMessages[] = sprintf(
+                    'Property: %s, Parameters: %s, Message: %s',
+                    $validationError->getPropertyPath(),
+                    implode(',', $validationError->getParameters()),
+                    $validationError->getMessage()
+                );
+            }
+
+            throw new \Exception(json_encode($errorMessages));
+        }
+
         $message = [];
         $message['message'] = 'Created';
         $response = new Response(json_encode($message));
@@ -135,7 +150,7 @@ class DefaultController extends AbstractController
             $response->setStatusCode(201);
             $response->headers->set('location', sprintf('employees/%s', $employeeEntity->getUuid()));
         } catch (\Exception $e) {
-            die('ERROR'); // TODO: Fix
+            throw new \Exception("Could not create for unexpected reason.");
         }
 
         return $response;
@@ -157,8 +172,24 @@ class DefaultController extends AbstractController
      *     converter="fos_rest.request_body"
      * )
      */
-    public function updateAction(string $uuid, EmployeeRequest $employeeRequest)
+    public function updateAction(string $uuid, EmployeeRequest $employeeRequest, ConstraintViolationListInterface $validationErrors)
     {
+        if (\count($validationErrors) > 0) {
+             $errorMessages = [];
+
+            /** @var ConstraintViolation $validationError */
+            foreach ($validationErrors as $validationError) {
+                $errorMessages[] = sprintf(
+                    'Property: %s, Parameters: %s, Message: %s',
+                    $validationError->getPropertyPath(),
+                    implode(',', $validationError->getParameters()),
+                    $validationError->getMessage()
+                );
+            }
+
+            throw new \Exception(json_encode($errorMessages));
+        }
+
     	$employee = $this->getDoctrine()
             ->getRepository(Employee::class)
             ->findOneByUuid($uuid);
@@ -182,7 +213,7 @@ class DefaultController extends AbstractController
 
             $response->setStatusCode(200);
         } catch (\Exception $e) {
-            die($e->getMessage()); // TODO: Fix
+            throw new \Exception("Could not update for unexpected reason.");
         }
 
         return $response;
@@ -214,7 +245,7 @@ class DefaultController extends AbstractController
 
             $response->setStatusCode(200);
         } catch (\Exception $e) {
-            die($e->getMessage()); // TODO: Fix
+            throw new \Exception("Could not delete for unexpected reason.");
         }
 
         return $response;

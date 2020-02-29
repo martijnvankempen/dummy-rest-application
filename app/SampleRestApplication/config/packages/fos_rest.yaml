@@ -5,6 +5,7 @@ fos_rest:
   body_converter:
     enabled: true
     validate: true
+    validation_errors_argument: validationErrors
   body_listener: true
   param_fetcher_listener: true
   format_listener:
@@ -19,4 +20,4 @@ fos_rest:
     enabled: true
     codes:
       'Doctrine\ORM\EntityNotFoundException': 404
-      'InvalidArgumentException': 400
+      'Exception': 400
