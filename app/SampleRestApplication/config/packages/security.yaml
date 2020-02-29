@@ -17,6 +17,9 @@ security:
             provider: backend_users
             http_basic:
                 realm: "Api"
+        api2:     
+            pattern: "^/api/employees"
+            security: false
 
     access_control:
         - { path: ^/api/employees, roles: ROLE_API_USER }
