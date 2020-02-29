@@ -111,7 +111,9 @@ class DefaultController extends FOSRestController
     {
         // TODO: Handle errors (ConstraintViolationListInterface $validationErrors)
 
-        $response = new Response();
+        $message = [];
+        $message['message'] = 'Created';
+        $response = new Response(json_encode($message));
 
         try {
             $employeeEntity = new Employee();
@@ -134,15 +136,39 @@ class DefaultController extends FOSRestController
 
     /**
      * @Put("/{uuid}")
+     *
+     * @ParamConverter(
+     *     "employeeRequest",
+     *     converter="fos_rest.request_body"
+     * )
      */
-    public function updateAction(string $uuid)
+    public function updateAction(string $uuid, EmployeeRequest $employeeRequest)
     {
-    	$data = [];
+    	$employee = $this->getDoctrine()
+            ->getRepository(Employee::class)
+            ->findOneByUuid($uuid);
 
-    	$data['message'] = "Hello world " . $uuid;
+        if ($employee === null) {
+            throw new EntityNotFoundException(sprintf("No employee found with uuid %s", $uuid));
+        }
 
-    	$response = new Response(json_encode($data));
-        $response->headers->set('Content-Type', 'application/json');
+        $message = [];
+        $message['message'] = 'Updated';
+        $response = new Response(json_encode($message));
+
+        try {
+            $employee->setName($employeeRequest->name);
+            $employee->setAge($employeeRequest->age);
+            $employee->setSalary($employeeRequest->salary);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->flush();
+            
+
+            $response->setStatusCode(200);
+        } catch (\Exception $e) {
+            die($e->getMessage()); // TODO: Fix
+        }
 
         return $response;
     }
@@ -153,12 +179,28 @@ class DefaultController extends FOSRestController
      */
     public function deleteAction(string $uuid)
     {
-    	$data = [];
+    	$employee = $this->getDoctrine()
+            ->getRepository(Employee::class)
+            ->findOneByUuid($uuid);
 
-    	$data['message'] = "Hello world " . $uuid;
+        if ($employee === null) {
+            throw new EntityNotFoundException(sprintf("No employee found with uuid %s", $uuid));
+        }
 
-    	$response = new Response(json_encode($data));
-        $response->headers->set('Content-Type', 'application/json');
+        $message = [];
+        $message['message'] = 'Deleted';
+        $response = new Response(json_encode($message));
+
+        try {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($employee);
+            $entityManager->flush();
+            
+
+            $response->setStatusCode(200);
+        } catch (\Exception $e) {
+            die($e->getMessage()); // TODO: Fix
+        }
 
         return $response;
     }
