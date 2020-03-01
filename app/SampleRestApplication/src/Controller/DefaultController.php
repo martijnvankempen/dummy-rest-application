@@ -21,6 +21,8 @@ use App\Model\EmployeeRequest;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * @Route("/employees")
@@ -30,8 +32,25 @@ class DefaultController extends AbstractController
 
     // TODO: Post file
     // TODO: Get file
-    // TODO: Basic auth
-    // TODO: Token
+
+    private $token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+    protected $requestStack;
+
+    public function __construct(RequestStack $requestStack)
+    {
+        $this->requestStack = $requestStack;
+
+        $request = $this->requestStack->getCurrentRequest();
+
+        if ($request != null && $request->headers->has('Authorization')) {
+            $usedToken = $request->headers->get('Authorization');
+
+            if ($usedToken != $this->token && substr($usedToken, 0, 5) != 'Basic') {
+                throw new AccessDeniedHttpException("Invalid token");
+            }
+        }
+    }
 
    /**
      * @Get("")

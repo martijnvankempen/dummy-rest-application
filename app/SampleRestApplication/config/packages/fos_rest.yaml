@@ -20,4 +20,5 @@ fos_rest:
     enabled: true
     codes:
       'Doctrine\ORM\EntityNotFoundException': 404
+      'Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException': 401
       'Exception': 400
