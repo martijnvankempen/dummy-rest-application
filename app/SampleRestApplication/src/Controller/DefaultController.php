@@ -23,6 +23,8 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @Route("/employees")
@@ -30,21 +32,19 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class DefaultController extends AbstractController
 {
 
-    // TODO: Post file
-    // TODO: Get file
-
     private $token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
-    protected $requestStack;
+    private $requestStack;
+    private $request;
 
     public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
 
-        $request = $this->requestStack->getCurrentRequest();
+        $this->request = $this->requestStack->getCurrentRequest();
 
-        if ($request != null && $request->headers->has('Authorization')) {
-            $usedToken = $request->headers->get('Authorization');
+        if ($this->request != null && $this->request->headers->has('Authorization')) {
+            $usedToken = $this->request->headers->get('Authorization');
 
             if ($usedToken != $this->token && substr($usedToken, 0, 5) != 'Basic') {
                 throw new AccessDeniedHttpException("Invalid token");
@@ -261,11 +261,97 @@ class DefaultController extends AbstractController
             $entityManager->remove($employee);
             $entityManager->flush();
             
-
             $response->setStatusCode(200);
         } catch (\Exception $e) {
             throw new \Exception("Could not delete for unexpected reason.");
         }
+
+        return $response;
+    }
+
+    /**
+     * @Post("/{uuid}/images")
+     *
+     * @SWG\Post(
+     *    @SWG\Response(
+     *      response=201,
+     *        description="Create a image for an employee", 
+     *     )
+     * )
+     */
+    public function createImageAction(string $uuid)
+    {
+        $employee = $this->getDoctrine()
+            ->getRepository(Employee::class)
+            ->findOneByUuid($uuid);
+
+        if ($employee === null) {
+            throw new EntityNotFoundException(sprintf("No employee found with uuid %s", $uuid));
+        }
+
+        $message = [];
+        $message['message'] = 'Created';
+        $response = new Response(json_encode($message));
+
+        try {
+            $file = $this->request->files->get('image');
+
+            if ($file == null) {
+                throw new \Exception("Could not save file for unexpected reason.");
+            }
+
+            if ($file->getMimeType() != 'image/png') {
+                throw new \Exception("Could not save file for unexpected reason.");
+            }
+
+            $myfile = fopen($file->getPathName(), "r") or die("Unable to open file!");
+            
+            $data = file_get_contents($file->getPathName());
+
+            $employee->setImage(base64_encode($data));
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->flush();
+
+            fclose($myfile);
+        } catch (\Exception $e) {
+            throw new \Exception("Could not save file for unexpected reason.");
+        }
+
+       
+        return $response;
+    }
+
+    /**
+     * @Get("/{uuid}/images")
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the image of an employee"
+     * )
+     */
+    public function imageAction(string $uuid)
+    {
+        $employee = $this->getDoctrine()
+            ->getRepository(Employee::class)
+            ->findOneByUuid($uuid);
+
+        if ($employee === null) {
+            throw new EntityNotFoundException(sprintf("No employee found with uuid %s", $uuid));
+        }
+
+        if ($employee->getImage() === null) {
+            throw new EntityNotFoundException(sprintf("Employee %s does not have an image yet", $uuid));
+        }
+
+        $message = [];
+        
+        try {
+            $message['image'] = $employee->getImage();
+        } catch (\Exception $e) {
+            throw new \Exception("Could not returnb file for unexpected reason.");
+        }
+
+        $response = new Response(json_encode($message));
 
         return $response;
     }

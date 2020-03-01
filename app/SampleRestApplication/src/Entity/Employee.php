@@ -37,7 +37,7 @@ class Employee
     private $age;
 
     /**
-     * @ORM\Column(type="string", length=2000, nullable=true)
+     * @ORM\Column(type="string", length=5000, nullable=true)
      */
     private $image;
 

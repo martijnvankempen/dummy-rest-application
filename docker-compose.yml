@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   mysql:
-    container_name: tutorial-mysql
+    container_name: dummy-mysql
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     ports:
@@ -13,13 +13,13 @@ services:
    build:
      context: .
      dockerfile: docker/php/Dockerfile
-   container_name: tutorial-php
+   container_name: dummy-php
    volumes:
      - "./app/:/usr/src/app"
    environment:
      DATABASE_URL: mysql://root:root@mysql:3306/dummy?serverVersion=8.0
   nginx:
-    container_name: tutorial-nginx
+    container_name: dummy-nginx
     image: nginx:1.15.3
     volumes:
       - "./app/:/usr/src/app"

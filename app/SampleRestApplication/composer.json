@@ -20,7 +20,8 @@
         "symfony/yaml": "4.4.*",
         "symfony/validator": "4.4.*",
         "friendsofsymfony/rest-bundle": "2.7",
-        "nelmio/api-doc-bundle": "3.6"
+        "nelmio/api-doc-bundle": "3.6",
+        "symfony/filesystem": "4.4.*"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.14"
