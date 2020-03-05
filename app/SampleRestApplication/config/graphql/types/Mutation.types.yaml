@@ -1,0 +1,17 @@
+Mutation:
+  type: object
+  config:
+    fields:
+      createEmployee:
+        type: Employee!
+        resolve: "@=resolver('Mutation', [args])"
+        args:
+          input:
+            type: EmployeeInput!
+      deleteEmployee:
+        type: "Employee"
+        args:
+          uuid:
+            description: "Resolves using the employee uuid."
+            type: "String"
+        resolve: "@=resolver('MutationRemove', [args])"

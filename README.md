@@ -28,3 +28,28 @@ Password: admin
 Required header
 Key: Authorization
 Value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+## Graph query
+http://localhost/graphiql
+
+# get
+{employee(uuid:"825293d8-0bc5-415b-9389-6b769d92115c") {
+  uuid
+  name
+  age
+  salary
+}}
+
+# Create
+mutation {
+  createEmployee(input: { name: "test"}){
+    name
+  }
+}
+
+# Delete
+mutation {
+  deleteEmployee(uuid: "test"){
+    uuid
+  }
+}
