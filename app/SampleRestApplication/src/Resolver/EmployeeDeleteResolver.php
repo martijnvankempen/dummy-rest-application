@@ -18,14 +18,18 @@ class EmployeeDeleteResolver implements ResolverInterface, AliasedInterface {
 
     public function resolve(Argument $args)
     {
-        $rawArgs = $args->getRawArguments();
+        try {
+            $rawArgs = $args->getRawArguments();
 
-        $uuid = $args['uuid'];
+            $uuid = $args['uuid'];
 
-        $employeeEntity = $this->em->getRepository('App:Employee')->findOneByUuid($args['uuid']);
+            $employeeEntity = $this->em->getRepository('App:Employee')->findOneByUuid($args['uuid']);
 
-        $this->em->remove($employeeEntity);
-        $this->em->flush();
+            $this->em->remove($employeeEntity);
+            $this->em->flush();
+        } catch (\Exception $e) {
+            return null;
+        }
 
         return $employeeEntity;
     }

@@ -18,23 +18,27 @@ class EmployeeUpdateResolver implements ResolverInterface, AliasedInterface {
 
     public function resolve(Argument $args)
     {
-        $rawArgs = $args->getRawArguments();
+        try {
+            $rawArgs = $args->getRawArguments();
 
-        $uuid = $args['uuid'];
+            $uuid = $args['uuid'];
 
-        $employeeEntity = $this->em->getRepository('App:Employee')->findOneByUuid($args['uuid']);
+            $employeeEntity = $this->em->getRepository('App:Employee')->findOneByUuid($args['uuid']);
 
-        $input = [];
-        foreach($rawArgs['input'] as $key => $value){
-            $input[$key] = $value;
+            $input = [];
+            foreach($rawArgs['input'] as $key => $value){
+                $input[$key] = $value;
+            }
+
+            $employeeEntity->setName($input['name']);
+            $employeeEntity->setAge($input['age']);
+            $employeeEntity->setSalary($input['salary']);
+
+            $this->em->persist($employeeEntity);
+            $this->em->flush();
+        } catch (\Exception $e) {
+            return null;
         }
-
-        $employeeEntity->setName($input['name']);
-        $employeeEntity->setAge($input['age']);
-        $employeeEntity->setSalary($input['salary']);
-
-        $this->em->persist($employeeEntity);
-        $this->em->flush();
 
         return $employeeEntity;
     }

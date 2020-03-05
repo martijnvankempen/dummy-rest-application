@@ -18,20 +18,24 @@ class EmployeeCreateResolver implements ResolverInterface, AliasedInterface {
 
     public function resolve(Argument $args)
     {
-        $rawArgs = $args->getRawArguments();
+        try {
+            $rawArgs = $args->getRawArguments();
 
-        $input = [];
-        foreach($rawArgs['input'] as $key => $value){
-            $input[$key] = $value;
+            $input = [];
+            foreach($rawArgs['input'] as $key => $value){
+                $input[$key] = $value;
+            }
+
+            $employeeEntity = new Employee();
+            $employeeEntity->setName($input['name']);
+            $employeeEntity->setAge($input['age']);
+            $employeeEntity->setSalary($input['salary']);
+
+            $this->em->persist($employeeEntity);
+            $this->em->flush();
+        } catch (\Exception $e) {
+            return null;
         }
-
-        $employeeEntity = new Employee();
-        $employeeEntity->setName($input['name']);
-        $employeeEntity->setAge($input['age']);
-        $employeeEntity->setSalary($input['salary']);
-
-        $this->em->persist($employeeEntity);
-        $this->em->flush();
 
         return $employeeEntity;
     }

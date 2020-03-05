@@ -4,7 +4,7 @@ Employee:
     description: "An employee"
     fields:
       uuid:
-        type: "String!"
+        type: "String"
         description: "The unique ID of an employee."
       name:
         type: "String"
