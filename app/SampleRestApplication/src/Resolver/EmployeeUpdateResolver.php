@@ -7,7 +7,7 @@ use Overblog\GraphQLBundle\Definition\Resolver\AliasedInterface;
 use Overblog\GraphQLBundle\Definition\Resolver\ResolverInterface;
 use App\Entity\Employee;
 
-class MutationResolver implements ResolverInterface, AliasedInterface {
+class EmployeeUpdateResolver implements ResolverInterface, AliasedInterface {
 
     private $em;
 
@@ -20,13 +20,23 @@ class MutationResolver implements ResolverInterface, AliasedInterface {
     {
         $rawArgs = $args->getRawArguments();
 
-        $input = [];
+        $uuid = $args['uuid'];
 
+        $employeeEntity = $this->em->getRepository('App:Employee')->findOneByUuid($args['uuid']);
+
+        $input = [];
         foreach($rawArgs['input'] as $key => $value){
             $input[$key] = $value;
         }
 
-        return ['name' => json_encode($input)];
+        $employeeEntity->setName($input['name']);
+        $employeeEntity->setAge($input['age']);
+        $employeeEntity->setSalary($input['salary']);
+
+        $this->em->persist($employeeEntity);
+        $this->em->flush();
+
+        return $employeeEntity;
     }
 
     public function createEmployee(Argument $args) {
@@ -36,7 +46,7 @@ class MutationResolver implements ResolverInterface, AliasedInterface {
     public static function getAliases(): array
     {
         return [
-            'resolve' => 'Mutation'
+            'resolve' => 'EmployeeUpdateResolver'
         ];
     }
 }

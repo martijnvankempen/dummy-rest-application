@@ -2,16 +2,25 @@ Mutation:
   type: object
   config:
     fields:
-      createEmployee:
+      employee_create:
         type: Employee!
-        resolve: "@=resolver('Mutation', [args])"
+        resolve: "@=resolver('EmployeeCreateResolver', [args])"
         args:
           input:
-            type: EmployeeInput!
-      deleteEmployee:
+            type: EmployeeCreateInput!
+      employee_update:
+        type: Employee!
+        resolve: "@=resolver('EmployeeUpdateResolver', [args])"
+        args:
+          uuid:
+            description: "Resolves using the employee uuid."
+            type: "String"
+          input:
+            type: EmployeeCreateInput!
+      employee_delete:
         type: "Employee"
         args:
           uuid:
             description: "Resolves using the employee uuid."
             type: "String"
-        resolve: "@=resolver('MutationRemove', [args])"
+        resolve: "@=resolver('EmployeeDeleteResolver', [args])"

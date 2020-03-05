@@ -7,7 +7,7 @@ use Overblog\GraphQLBundle\Definition\Resolver\AliasedInterface;
 use Overblog\GraphQLBundle\Definition\Resolver\ResolverInterface;
 use App\Entity\Employee;
 
-class MutationRemoveResolver implements ResolverInterface, AliasedInterface {
+class EmployeeDeleteResolver implements ResolverInterface, AliasedInterface {
 
     private $em;
 
@@ -18,13 +18,22 @@ class MutationRemoveResolver implements ResolverInterface, AliasedInterface {
 
     public function resolve(Argument $args)
     {
-        return ['uuid' => 'delete ' . $args['uuid']];
+        $rawArgs = $args->getRawArguments();
+
+        $uuid = $args['uuid'];
+
+        $employeeEntity = $this->em->getRepository('App:Employee')->findOneByUuid($args['uuid']);
+
+        $this->em->remove($employeeEntity);
+        $this->em->flush();
+
+        return $employeeEntity;
     }
 
     public static function getAliases(): array
     {
         return [
-            'resolve' => 'MutationRemove'
+            'resolve' => 'EmployeeDeleteResolver'
         ];
     }
 }
