@@ -93,7 +93,7 @@ mutation {
 ### Employee update
 ```
 mutation {
-  employee_update(uuid: "123e06d9-4e39-4d03-86af-6dcc4475a2f9", input: { name: "Foo 2", age: 23, salary:2330}){
+  employee_update(uuid: "825293d8-0bc5-415b-9389-6b769d92115c", input: { name: "Foo 2", age: 23, salary:2330}){
     name,
     age,
     salary,
@@ -105,7 +105,7 @@ mutation {
 ### Delete
 ```
 mutation {
-  employee_delete(uuid: "a4984157-51be-4381-b0a2-8ba971bc1b23"){
+  employee_delete(uuid: "825293d8-0bc5-415b-9389-6b769d92115c"){
     name,
     age,
     salary,
