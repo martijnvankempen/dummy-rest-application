@@ -52,18 +52,6 @@ http://localhost/graphiql
 Using postman:
 http://localhost/g
 
-### Employee Detail
-```
-{
-  employee_detail(uuid:"825293d8-0bc5-415b-9389-6b769d92115c") {
-    uuid
-    name
-    age
-    salary
-  }
-}
-```
-
 ### Employee List
 ```
 {
@@ -74,6 +62,18 @@ http://localhost/g
       age
       salary
     }
+  }
+}
+```
+
+### Employee Detail
+```
+{
+  employee_detail(uuid:"825293d8-0bc5-415b-9389-6b769d92115c") {
+    uuid
+    name
+    age
+    salary
   }
 }
 ```
