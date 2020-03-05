@@ -32,15 +32,29 @@ Value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwib
 ## Graph query
 http://localhost/graphiql
 
-# get
-{employee(uuid:"825293d8-0bc5-415b-9389-6b769d92115c") {
-  uuid
-  name
-  age
-  salary
-}}
+### Employee Detail
+{
+  employee_detail(uuid:"825293d8-0bc5-415b-9389-6b769d92115c") {
+    uuid
+    name
+    age
+    salary
+  }
+}
 
-# Create
+### Employee List
+{
+  employee_list {
+    employees {
+      uuid
+      name
+      age
+      salary
+    }
+  }
+}
+
+### Employee create
 mutation {
   createEmployee(input: { name: "test"}){
     name

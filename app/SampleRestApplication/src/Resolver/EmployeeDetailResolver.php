@@ -7,7 +7,7 @@ use Overblog\GraphQLBundle\Definition\Resolver\AliasedInterface;
 use Overblog\GraphQLBundle\Definition\Resolver\ResolverInterface;
 use App\Entity\Employee;
 
-class EmployeeResolver implements ResolverInterface, AliasedInterface {
+class EmployeeDetailResolver implements ResolverInterface, AliasedInterface {
 
     private $em;
 
@@ -25,7 +25,7 @@ class EmployeeResolver implements ResolverInterface, AliasedInterface {
     public static function getAliases(): array
     {
         return [
-            'resolve' => 'Employee'
+            'resolve' => 'EmployeeDetailResolver'
         ];
     }
 }
